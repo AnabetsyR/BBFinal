@@ -93,36 +93,38 @@ public class Customer implements Runnable {
     public void run() {
         while (notServed) {  // as long as the customer is not served
 
-                //tries to get access to the chairs
+            //tries to get access to the chairs
 
-                if ( customersWaiting.size() < 15)  {  //if there are any free seats
+            if (customersWaiting.size() < 15) {  //if there are any free seats
 
-                    try {
-                        waitingArea.acquire();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    freeSeats--;  //sitting down on a chair
-                    System.out.println("Customer " + this.getCustId() + " with an order of " + this.getNumBurritos() + " burritos just sat down." + "\n");
-                    System.out.println("in queue " + customersWaiting);
+                try {
+                    waitingArea.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                freeSeats--;  //sitting down on a chair
+                System.out.println("Customer " + this.getCustId() + " with an order of " + this.getNumBurritos() + " burritos just sat down." + "\n");
+                System.out.println("in queue " + customersWaiting);
 
-                    //if(numBurritos > 0){
-                    waitingArea.release();
+                //if(numBurritos > 0){
+                waitingArea.release();
 
-                    try {
-                        counters.acquire();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    this.get_burrito();
-                    this.pay_burritos();
-                    this.leave_shop();
-                    //notServed = false;
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
+                try {
+                    counters.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                this.get_burrito();
+                this.pay_burritos();
+                this.leave_shop();
+                //notServed = false;
+                try {
+                    sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+           // }//end of while cust size < 15
+       // } //end of while not served
 
 
                     if(numBurritos > 3){
@@ -176,11 +178,6 @@ public class Customer implements Runnable {
                             }
 
                             Customer customer = new Customer(customersWaiting, custId, numBurritos);
-                            //try {
-                            //waitingArea.acquire();
-                            //} catch (InterruptedException e) {
-                            // e.printStackTrace();
-                            //}
                             customersWaiting.add(customer);
                             Collections.sort(customersWaiting, new Comparator<Customer>() {
 
@@ -193,11 +190,7 @@ public class Customer implements Runnable {
                                     return 0;
                                 }
 
-                            }); //Added this at 1:32 pm
-
-
-
-
+                            });
 
                             servers.release();
                             //notServed = true;
@@ -206,11 +199,12 @@ public class Customer implements Runnable {
                     }
                             else {
                                 //notServed = false;
-
-                        servers.release();
                         //notServed = true;
-                                this.pay_burritos();
-                                this.leave_shop();
+                        servers.release();
+                        notServed = true;
+
+                              //  this.pay_burritos();
+                              //  this.leave_shop();
                             }
                 }
                 else  {  // there are no free seats

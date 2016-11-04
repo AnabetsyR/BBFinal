@@ -45,33 +45,32 @@ public class BurritoServer implements Runnable {
 
     @Override
     public void run() {
-        while(!customersWaiting.isEmpty()) {  // runs in an infinite loop
-            //try {
+        //System.out.println("QUEUE " + customersWaiting);
+
+        try {
+            //servers.acquire();
+            customers.acquire();
+            System.out.println("QUEUE " + customersWaiting);
+
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+       while(customersWaiting.size() > 0) {  // runs in an infinite loop
+
+           //try {
             //counters.acquire(); //just commented out at 7:40
             //System.out.println("QUEUE " + customersWaiting);
             //while (!customersWaiting.isEmpty()) {
-                try {
+             /*   try {
                     //servers.acquire();
                     customers.acquire();
                     System.out.println("QUEUE " + customersWaiting);
 
                 } catch (InterruptedException e) {
                     e.printStackTrace();
-                }
-                //customers.acquire(); //comm at 4pm
-
-                //System.out.println("waiting cust " + customersWaiting);
-               /* if(!customersWaiting.isEmpty()) {
-                int burritos = customersWaiting.get(0).numBurritos;
-
-                    if (burritos <= 0) {
-                        customersWaiting.remove(0);
-                    } else if (burritos - 3 > 0) {
-                        //numBurritos -=3;
-                        Customer customer = new Customer(customersWaiting, custId, numBurritos);
-                        customersWaiting.add(customer);
-                    }
                 } */
+
 
                 System.out.println("blah blah blah");
 
@@ -84,13 +83,6 @@ public class BurritoServer implements Runnable {
             System.out.println("LOL LOL LOL");
 
 
-                //customers.release();comm at 4pm
-
-                // counters.release(); //just commented out at 7:40
-
-                //freeSeats++; // one chair gets free
-
-                //} catch (InterruptedException ex) {}
             }
 
     }
@@ -100,21 +92,21 @@ public class BurritoServer implements Runnable {
     public void makeBurrito(){// I need to find a way to make burritos only for orders > 0!!!!!
         System.out.println("WAITING " + customersWaiting);
 
-            while (customersWaiting.size() > 0){
+            if (customersWaiting.size() > 0){
 
                 System.out.println(" Server " + name + " is serving customer " + customersWaiting.remove(0));
                         //numBurritos -= 3;
                         //Customer customer = new Customer(customersWaiting, custId, numBurritos);
                         //customersWaiting.add(customer);
                     }
-            //customers.release();
+            else {
+                System.out.println("The are no customers waiting");
+            }
+
 
 
 
     }
-            //else {
-                //System.out.println("The are no customers waiting");
-            //}
 
 
 }

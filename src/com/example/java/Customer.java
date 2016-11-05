@@ -123,27 +123,62 @@ public class Customer implements Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-           // }//end of while cust size < 15
-       // } //end of while not served
+                // }//end of while cust size < 15
+                // } //end of while not served
 
 
-                    if(numBurritos > 3){
-                        numBurritos -= 3;
-                        try {
+                if(numBurritos > 3){
+                    numBurritos -= 3;
+                    try {
+                        customers.acquire();
+                        //servers.acquire();
+                        //sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Customer customer = new Customer(customersWaiting, custId, numBurritos);
+                    //try {
+                    //waitingArea.acquire();
+                    //} catch (InterruptedException e) {
+                    //e.printStackTrace();
+                    //}
+                    customersWaiting.add(customer);
+
+                    Collections.sort(customersWaiting, new Comparator<Customer>() {
+
+                        public int compare(Customer c1, Customer c2) {
+                            if (c1.getNumBurritos() > c2.getNumBurritos()) {
+                                return 1;
+                            } else if (c1.getNumBurritos() < c2.getNumBurritos()) {
+                                return -1;
+                            }
+                            return 0;
+                        }
+
+                    }); //Added this at 1:32 pm
+                    // freeSeats--;
+
+                    servers.release();
+
+                    //notServed = true;
+
+
+                } else if((numBurritos > 0) && (numBurritos <= 3)) {
+                    numBurritos -= 3;
+                    //notServed = true;
+                    if (numBurritos <= 0) {
+                        notServed = false;
+                    } else {
+                        notServed = true;
+
+                    /*    try {
                             customers.acquire();
-                            //servers.acquire();
-                            //sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
-                        Customer customer = new Customer(customersWaiting, custId, numBurritos);
-                        //try {
-                            //waitingArea.acquire();
-                        //} catch (InterruptedException e) {
-                            //e.printStackTrace();
-                        //}
-                        customersWaiting.add(customer);
 
+                        Customer customer = new Customer(customersWaiting, custId, numBurritos);
+                        customersWaiting.add(customer);
                         Collections.sort(customersWaiting, new Comparator<Customer>() {
 
                             public int compare(Customer c1, Customer c2) {
@@ -155,66 +190,29 @@ public class Customer implements Runnable {
                                 return 0;
                             }
 
-                        }); //Added this at 1:32 pm
-                       // freeSeats--;
-
+                        }); */
+                        //customers.release();
                         servers.release();
-
                         //notServed = true;
 
-
-                    } else if((numBurritos > 0) && (numBurritos <= 3)) {
-                        numBurritos -= 3;
-                        //notServed = true;
-                        if (numBurritos <= 0) {
-                            notServed = false;
-                        } else {
-                                //notServed = true;
-
-                            try {
-                                customers.acquire();
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
-                            }
-
-                            Customer customer = new Customer(customersWaiting, custId, numBurritos);
-                            customersWaiting.add(customer);
-                            Collections.sort(customersWaiting, new Comparator<Customer>() {
-
-                                public int compare(Customer c1, Customer c2) {
-                                    if (c1.getNumBurritos() > c2.getNumBurritos()) {
-                                        return 1;
-                                    } else if (c1.getNumBurritos() < c2.getNumBurritos()) {
-                                        return -1;
-                                    }
-                                    return 0;
-                                }
-
-                            });
-
-                            servers.release();
-                            //notServed = true;
-
-                        }
                     }
-                            else {
-                                //notServed = false;
-                        //notServed = true;
-                        servers.release();
-                        notServed = true;
+                }
+                else {
+                    notServed = false;
+                    //notServed = true;
+                    //servers.release();
+                    //notServed = true;
 
-                              //  this.pay_burritos();
-                              //  this.leave_shop();
-                            }
+                     this.pay_burritos();
+                     this.leave_shop();
                 }
-                else  {  // there are no free seats
-                    System.out.println("There are no free seats. Customer " + this.getCustId() + " has left Burrito Brothers." + "\n");
-                    waitingArea.release();  //release the lock on the seats
-                    notServed=true; // the customer will leave since there are no spots left in the seating area
-                }
+            }
+            else  {  // there are no free seats
+                System.out.println("There are no free seats. Customer " + this.getCustId() + " has left Burrito Brothers." + "\n");
+                waitingArea.release();  //release the lock on the seats
+                notServed=true; // the customer will leave since there are no spots left in the seating area
+            }
         }
     }
 
 }
-
-

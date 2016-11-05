@@ -19,7 +19,7 @@ public class BurritoServer implements Runnable {
 
 
     Semaphore customers = new Semaphore(1);
-    Semaphore servers = new Semaphore(0);
+    Semaphore servers = new Semaphore(3);
     Semaphore register = new Semaphore(1);
     Semaphore counters = new Semaphore(3);
     Semaphore waitingArea = new Semaphore(15);
@@ -57,6 +57,7 @@ public class BurritoServer implements Runnable {
             e.printStackTrace();
         }
        while(customersWaiting.size() > 0) {  // runs in an infinite loop
+
 
            //try {
             //counters.acquire(); //just commented out at 7:40

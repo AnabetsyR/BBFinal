@@ -18,7 +18,7 @@ public class Main {
 
 
         //List<Customer> customersWaiting = new ArrayList<Customer>(15);
-        List<Customer> customersWaiting = new LinkedList<Customer>();//try this one and see what happens!!
+        LinkedList<Customer> customersWaiting = new LinkedList<Customer>();//try this one and see what happens!!
 
 
 
@@ -32,6 +32,7 @@ public class Main {
         final String[] SERVERS = {"Anne", "Joe", "Bob"};
 
 
+
         //Obtaining customers from text file
         Scanner fileToRead = new Scanner(new File("customers.txt"));
 
@@ -42,7 +43,6 @@ public class Main {
             numBurritos = Integer.parseInt(line[1]);
 
                 if ((numBurritos > 0) && (customersWaiting.size() < 15)) {
-
 
                     Customer customer = new Customer(customersWaiting, custId, numBurritos);
 

@@ -2,6 +2,7 @@ package com.example.java;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
@@ -12,7 +13,7 @@ import static java.lang.Thread.sleep;
  */
 public class Customer implements Runnable {
     //protected BlockingQueue<Customer> blockingQueue;
-    List<Customer> customersWaiting;
+    LinkedList<Customer> customersWaiting;
 
 
     //public static int customersWaiting = 0;
@@ -31,7 +32,7 @@ public class Customer implements Runnable {
     private int freeSeats = 15;
 
     public Customer(List<Customer> customersWaiting, int custId, int numBurritos) {
-        this.customersWaiting = customersWaiting;
+        this.customersWaiting = (LinkedList<Customer>) customersWaiting;
         this.custId = custId;
         this.numBurritos = numBurritos;
     }
@@ -60,7 +61,6 @@ public class Customer implements Runnable {
     //this method simulates getting a burrito
 
     public void get_burrito(){
-        //System.out.println("Customer " + getCustId() + " is getting his burritos made..." + "\n");
         try {
             sleep(1000);
         } catch (InterruptedException ex) {}
@@ -72,7 +72,7 @@ public class Customer implements Runnable {
         Semaphore register = new Semaphore(1);
         try {
             register.acquire();
-            sleep(5000);//just added 6:17
+            sleep(2000);//just added 6:17
             System.out.println("Customer " + this.getCustId() + " is paying for his order... " + "\n");
             register.release();
         } catch (InterruptedException e) {
@@ -95,12 +95,14 @@ public class Customer implements Runnable {
 
             //tries to get access to the chairs
 
-            if (customersWaiting.size() < 15) {  //if there are any free seats
+            if (waitingArea.availablePermits() > 0) {  //if there are any free seats
 
                 try {
+                    //waitingArea.tryAcquire();
                     waitingArea.acquire();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
+                    //System.out.println("The shop is full. Customer " + this.getCustId() + " will have to return at a later time");
                 }
                 freeSeats--;  //sitting down on a chair
                 System.out.println("Customer " + this.getCustId() + " with an order of " + this.getNumBurritos() + " burritos just sat down." + "\n");
@@ -114,11 +116,41 @@ public class Customer implements Runnable {
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
+
+
+                try {
+                    customers.acquire();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+              /*  Customer customer = new Customer(customersWaiting, custId, numBurritos);
+                customersWaiting.add(customer);
+
+                Collections.sort(customersWaiting, new Comparator<Customer>() {
+
+                    public int compare(Customer c1, Customer c2) {
+                        if (c1.getNumBurritos() > c2.getNumBurritos()) {
+                            return 1;
+                        } else if (c1.getNumBurritos() < c2.getNumBurritos()) {
+                            return -1;
+                        }
+                        return 0;
+                    }
+
+                }); */
+
+                //servers.release();
+                customers.release();
+
+
                 this.get_burrito();
+                counters.release();
                 this.pay_burritos();
                 this.leave_shop();
                 //notServed = false;
-                try {
+               try {
                     sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -130,19 +162,17 @@ public class Customer implements Runnable {
                 if(numBurritos > 3){
                     numBurritos -= 3;
                     try {
-                        customers.acquire();
-                        //servers.acquire();
-                        //sleep(500);
+                        waitingArea.acquire(); //just added at 2:49 pm
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-                    Customer customer = new Customer(customersWaiting, custId, numBurritos);
-                    //try {
-                    //waitingArea.acquire();
-                    //} catch (InterruptedException e) {
-                    //e.printStackTrace();
-                    //}
-                    customersWaiting.add(customer);
+                    try {
+                        customers.acquire();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                    Customer customer1 = new Customer(customersWaiting, custId, numBurritos);
+                    customersWaiting.add(customer1);
 
                     Collections.sort(customersWaiting, new Comparator<Customer>() {
 
@@ -158,7 +188,10 @@ public class Customer implements Runnable {
                     }); //Added this at 1:32 pm
                     // freeSeats--;
 
-                    servers.release();
+                    waitingArea.release();//just added at 2:49 pm
+
+                    //servers.release();
+                    customers.release();
 
                     //notServed = true;
 
@@ -169,16 +202,16 @@ public class Customer implements Runnable {
                     if (numBurritos <= 0) {
                         notServed = false;
                     } else {
-                        notServed = true;
-
-                    /*    try {
-                            customers.acquire();
+                        //notServed = true;
+                        try {
+                            customers.acquire(); //just added at 2:55pm
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
 
-                        Customer customer = new Customer(customersWaiting, custId, numBurritos);
-                        customersWaiting.add(customer);
+                        Customer customer2 = new Customer(customersWaiting, custId, numBurritos);
+                        customersWaiting.add(customer2);
+
                         Collections.sort(customersWaiting, new Comparator<Customer>() {
 
                             public int compare(Customer c1, Customer c2) {
@@ -190,26 +223,26 @@ public class Customer implements Runnable {
                                 return 0;
                             }
 
-                        }); */
-                        //customers.release();
-                        servers.release();
-                        //notServed = true;
+                        }); //Added this at 3:03pm
 
+                        waitingArea.release();
+                        //servers.release();
+                        customers.release();
                     }
                 }
-                else {
-                    notServed = false;
-                    //notServed = true;
-                    //servers.release();
-                    //notServed = true;
-
+              /*  else {
+                     notServed = false;
                      this.pay_burritos();
                      this.leave_shop();
-                }
-            }
+                } */
+
+            } //End of if waiting area < 15
             else  {  // there are no free seats
                 System.out.println("There are no free seats. Customer " + this.getCustId() + " has left Burrito Brothers." + "\n");
-                waitingArea.release();  //release the lock on the seats
+                //waitingArea.release();  //release the lock on the seats
+
+                    //waitingArea.release();
+
                 notServed=true; // the customer will leave since there are no spots left in the seating area
             }
         }

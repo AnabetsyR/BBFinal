@@ -95,7 +95,7 @@ public class Customer implements Runnable {
 
             //tries to get access to the chairs
 
-            if (waitingArea.availablePermits() > 0) {  //if there are any free seats
+            if (customersWaiting.size() < 15) {  //if there are any free seats
 
                 try {
                     //waitingArea.tryAcquire();
@@ -149,14 +149,13 @@ public class Customer implements Runnable {
                 counters.release();
                 this.pay_burritos();
                 this.leave_shop();
-                //notServed = false;
                try {
                     sleep(1000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
-                // }//end of while cust size < 15
-                // } //end of while not served
+                 //}//end of while cust size < 15
+                //} //end of while not served
 
 
                 if(numBurritos > 3){
@@ -198,7 +197,6 @@ public class Customer implements Runnable {
 
                 } else if((numBurritos > 0) && (numBurritos <= 3)) {
                     numBurritos -= 3;
-                    //notServed = true;
                     if (numBurritos <= 0) {
                         notServed = false;
                     } else {
@@ -223,26 +221,29 @@ public class Customer implements Runnable {
                                 return 0;
                             }
 
-                        }); //Added this at 3:03pm
+                        });
+                        customers.release();
 
                         waitingArea.release();
-                        //servers.release();
-                        customers.release();
+
+                        try {
+                            counters.acquire();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        counters.release();
+                        this.get_burrito();
+                        //customers.release();
+                        this.pay_burritos();
+                        this.leave_shop();
                     }
                 }
-              /*  else {
-                     notServed = false;
-                     this.pay_burritos();
-                     this.leave_shop();
-                } */
 
             } //End of if waiting area < 15
             else  {  // there are no free seats
                 System.out.println("There are no free seats. Customer " + this.getCustId() + " has left Burrito Brothers." + "\n");
-                //waitingArea.release();  //release the lock on the seats
-
-                    //waitingArea.release();
-
                 notServed=true; // the customer will leave since there are no spots left in the seating area
             }
         }

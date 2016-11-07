@@ -47,36 +47,17 @@ public class BurritoServer implements Runnable {
 
     @Override
     public void run() {
-        //System.out.println("QUEUE " + customersWaiting);
-
        while(customersWaiting.size() > 0) {  // runs in an infinite loop
-
-
-          /* try {
-               //servers.acquire();
-               servers.acquire();
-               System.out.println("QUEUE " + customersWaiting);
-
-
-           } catch (InterruptedException e) {
-               e.printStackTrace();
-           } */
-
 
            System.out.println("blah blah blah");
 
-                //customers.acquire();
            try {
                customers.acquire();
-               //servers.acquire();
                this.makeBurrito();  //making burritos
            } catch (InterruptedException e) {
                e.printStackTrace();
            }
-
-           //System.out.println("WAITING " + customersWaiting);
                 customers.release();
-                //customers.release();
             System.out.println("LOL LOL LOL");
 
 
@@ -89,20 +70,12 @@ public class BurritoServer implements Runnable {
     public void makeBurrito() throws InterruptedException {// I need to find a way to make burritos only for orders > 0!!!!!
         System.out.println("WAITING " + customersWaiting);
 
-            if (customersWaiting.size() > 0){
-               /* try {
-                    servers.acquire();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } */
-
+            //if (customersWaiting.size() > 0){
                 System.out.println(" Server " + name + " is serving customer " + customersWaiting.pollFirst());
-
-                //customers.release();
-                    }
-            else {
-                System.out.println("The are no customers waiting");
-            }
+                    //}
+           // else {
+                //System.out.println("The are no customers waiting");
+           // }
 
 
 
